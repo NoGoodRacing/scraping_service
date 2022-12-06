@@ -15,12 +15,20 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from scraping.views import home_view, list_view
+from scraping.views import (
+    home_view, list_view, vacancy_detail,
+    VacancyDetail, VacancyList, VacancyCreateView,
+    VacancyUpdateView, VacancyDelete)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home_view, name='home'),
-    path('list', list_view, name='list'),
-    path('accounts/', include(('accounts.urls', 'accounts')))
+    path('list', VacancyList.as_view(), name='list'),
+    path('accounts/', include(('accounts.urls', 'accounts'))),
+    path('detail/<int:pk>/', VacancyDetail.as_view(), name='detail_vacancy'),
+    path('create/', VacancyCreateView.as_view(), name='create'),
+    path('update/<int:pk>/', VacancyUpdateView.as_view(), name='update'),
+    path('delete/<int:pk>/', VacancyDelete.as_view(), name='delete'),
+
     # path('scraping/', include('scraping.urls'))
 ]

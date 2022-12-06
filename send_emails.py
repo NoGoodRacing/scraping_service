@@ -58,20 +58,29 @@ _html = ''
 
 if qs.exists():
     error = qs.first()
-    data = error.data
+    data = error.data.get('errors', [])
     for i in data:
         _html += f'<p><a href="{i["url"]}">Error:{i["title"]}</a></p>'
         subject = f'Ошибки скрапинга {today}'
         text_content = 'Ошибки скрапинга'
+    data = error.data.get('user_data')
+    if data:
+        _html += '<hr>'
+        _html += '<h2>Пожелания пользователей</h2>'
+        for i in data:
+            _html += f'<p>Город:{i["city"]}, Специальность:{i["language"]}, Mail:{i["email"]}</p>'
+            subject = f'Пожелания пользователей {today}'
+            text_content = 'Пожелания пользователей'
 
 qs = Url.objects.all().values('city', 'language')
 urls_dict = {(i['city'], i['language']): True for i in qs}
 urls_err = ''
 qs = User.objects.filter(send_mail=True).values('city', 'language')
 users_dict = {(i['city'], i['language']): (i['city'], i['language']) for i in qs}
-for i in users_dict:
+for pair in users_dict:
     if i not in urls_dict.keys():
-        urls_err += f'<p>Для {i[0]} и языка программирования {i[1]} отсутвуют url</p><br>'
+        if i[0] and i[1]:
+            urls_err += f'<p>Для {i[0]} и языка программирования {i[1]} отсутвуют url</p><br>'
 if urls_err:
     subject += 'Отсутвующие url'
     _html += urls_err
